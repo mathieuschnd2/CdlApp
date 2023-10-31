@@ -21,12 +21,14 @@ struct ContentView: View {
     @State private var webLink: String? = nil
     @State private var isChangeRequestPagePresented = false
     @State private var isEmailSheetPresented = false
+    @State private var isSignUpViewPresented = false
+    @State private var isLogInViewPresented = false
 
     var body: some View {
         NavigationView {
             VStack {
                 SearchBar(text: $searchText, placeholder: "Search News")
-
+            
                 CategoriesView(selectedCategory: $selectedCategory, categories: Array(Set(viewModel.articles.map { $0.category })), onCategorySelected: filterNewsByCategory)
 
                 List(viewModel.filteredArticles) { article in
@@ -36,7 +38,7 @@ struct ContentView: View {
                         NewsCardView(article: article)
                     }
                 }
-                .navigationTitle("World News")
+                .navigationBarTitle("World News")
 
                 Spacer()
 
@@ -100,9 +102,24 @@ struct ContentView: View {
             .onAppear {
                 viewModel.fetchNews()
             }
+            
+            .toolbar {
+                            ToolbarItem(placement: .navigationBarTrailing) {
+                                Button(action: {
+                                    isSignUpViewPresented.toggle() // Toggle the Create Account view
+                                }) {
+                                    Image(systemName: "person.crop.circle.fill") // Icon for Create Account
+                                        .font(.system(size: 35))
+                                        .foregroundColor(.black)
+                                }
+                                .sheet(isPresented: $isSignUpViewPresented) {
+                                                SignupView() // Present the Create Account view
+                                            }
+                            }
+                        }
+            
         }
     }
-
     func filterNewsByCategory(_ category: String) {
         viewModel.filterArticlesByCategory(category)
         selectedCategory = category
